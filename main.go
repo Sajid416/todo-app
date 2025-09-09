@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/Sajid416/todo-app/database"
@@ -14,9 +15,15 @@ func main() {
 	if err != nil {
 		log.Println("Error in Database Connection")
 	}
-	err = os.Getenv("SERVER_PORT")
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		port = "8080"
+	}
 
 	mux := router.RegisterRoutes()
-	fmt.Println()
+
+	fmt.Println("Server running at:" + port)
+	log.Fatal(http.ListenAndServe(":"+port, mux))
+	defer database.DB.Close()
 
 }
