@@ -18,15 +18,13 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
+	query := `INSERT INTO tasks (title, status) VALUES ($1, $2) RETURNING id, created_at`
+	err := database.DB.Get(&user, query, user.Title, user.Status)
 
-	query := `insert into tasks(title,done) values($1,$2) returning id,created_at`
-	row := database.DB.QueryRow(query, user.Title, user.Done)
-
-	if err := row.Scan(&user.Id, &user.Created_At); err != nil {
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	if user.Created_At.IsZero() {
 		user.Created_At = time.Now()
 	}

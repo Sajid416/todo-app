@@ -13,7 +13,14 @@ func RegisterRoutes() *http.ServeMux {
 
 		switch r.Method {
 		case "GET":
-			handler.GetTask(w, r)
+			if r.URL.Query().Has("status") {
+				handler.FilteredTask(w, r)
+			} else if r.URL.Query().Has("title") {
+				handler.UpdateStatus(w, r)
+
+			} else {
+				handler.GetAllTask(w, r)
+			}
 		case "POST":
 			handler.CreateTask(w, r)
 		default:
@@ -23,8 +30,15 @@ func RegisterRoutes() *http.ServeMux {
 	})
 	r.HandleFunc("/task/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
+		case "GET":
+			handler.GetTaskById(w, r)
 		case "PUT":
-			handler.UpdateTask(w, r)
+			if r.URL.Query().Has("status") {
+				handler.UpdateStatus(w, r)
+			} else {
+				handler.UpdateTask(w, r)
+			}
+
 		case "DELETE":
 			handler.DeleteTask(w, r)
 		default:

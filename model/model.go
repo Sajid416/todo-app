@@ -5,6 +5,6 @@ import "time"
 type User struct {
 	Id         int       `json:"id"`
 	Title      string    `json:"title"`
-	Done       bool      `json:"done"`
+	Status     string    `json:"status"`
 	Created_At time.Time `json:"created_at"`
 }

@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -32,12 +33,8 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	query := `update tasks set title=$1, done=$2 where id=$3 returning id,title,done, created_at`
-	row := database.DB.QueryRow(query, user.Title, user.Done, id)
-
-	var update model.User
-
-	err = row.Scan(&update.Id, &update.Title, &update.Done, &update.Created_At)
+	query := `update tasks set title=$1, status=$2 where id=$3 returning id,title,status, created_at`
+	err = database.DB.Get(&user, query, user.Title, user.Status, id)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -48,5 +45,25 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	WriteJson(w, http.StatusOK, update)
+	WriteJson(w, http.StatusOK, user)
+}
+func UpdateStatus(w http.ResponseWriter, r *http.Request) {
+	status := r.URL.Query().Get("status")
+	idx := strings.TrimPrefix(r.URL.Path, "/task/")
+
+	id, err := strconv.Atoi(idx)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	query := `UPDATE tasks SET status=$1 WHERE id=$2`
+	result, err := database.DB.Exec(query, status, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, _ := result.RowsAffected()
+	WriteJson(w, http.StatusOK, fmt.Sprintf("Update successful, %d row(s) affected", rowsAffected))
 }
