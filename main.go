@@ -6,11 +6,13 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/Sajid416/todo-app/cmd"
 	"github.com/Sajid416/todo-app/database"
 	"github.com/Sajid416/todo-app/router"
 )
 
 func main() {
+	cmd.Serve()
 	err := database.Connect()
 	if err != nil {
 		log.Println("Error in Database Connection")
