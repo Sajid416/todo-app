@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -8,24 +9,44 @@ import (
 
 type Config struct {
 	HttpPort  int
-	DBUrl     string
+	UserDBUrl string
+	TodoDBUrl string
 	JWTSecret string
 }
 
-// GetConfig loads configuration from environment variables
 func GetConfig() *Config {
 	httpPort := getEnvAsInt("HTTP_PORT", 8080)
-	dbUrl := getEnv("DATABASE_URL", "postgres://user:password@localhost:5432/todo_app?sslmode=disable")
-	jwtSecret := getEnv("JWT_SECRET", "supersecretkey")
+	jwtSecret := getEnv("JWT_SECRET", "myverysecretkey")
+
+	userDBUrl := buildDBUrl(
+		getEnv("DB_USER", "user"),
+		getEnv("DB_PASSWORD", "user_pass"),
+		getEnv("DB_HOST", "localhost"),
+		getEnvAsInt("DB_PORT", 5432),
+		getEnv("DB_NAME", "user_db"), // default user DB name
+	)
+
+	todoDBUrl := buildDBUrl(
+		getEnv("DB_USER", "user"),
+		getEnv("DB_PASSWORD", "user_pass"),
+		getEnv("DB_HOST", "localhost"),
+		getEnvAsInt("DB_PORT", 5432),
+		getEnv("DB_NAME", "todo_app"),
+	)
 
 	return &Config{
 		HttpPort:  httpPort,
-		DBUrl:     dbUrl,
+		UserDBUrl: userDBUrl,
+		TodoDBUrl: todoDBUrl,
 		JWTSecret: jwtSecret,
 	}
 }
 
-// Helper: Get env var with fallback
+
+func buildDBUrl(user, password, host string, port int, dbname string) string {
+	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", user, password, host, port, dbname)
+}
+
 func getEnv(key string, fallback string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
@@ -33,7 +54,6 @@ func getEnv(key string, fallback string) string {
 	return fallback
 }
 
-// Helper: Get int env var with fallback
 func getEnvAsInt(key string, fallback int) int {
 	if valueStr, exists := os.LookupEnv(key); exists {
 		value, err := strconv.Atoi(valueStr)

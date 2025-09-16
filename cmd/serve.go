@@ -1,17 +1,28 @@
 package cmd
 
 import (
+	"log"
+
 	"github.com/Sajid416/todo-app/config"
-	"github.com/Sajid416/todo-app/handler"
-	"github.com/Sajid416/todo-app/handler/todo"
-	"github.com/Sajid416/todo-app/handler/user"
-	"github.com/Sajid416/todo-app/middlewares"
+	"github.com/Sajid416/todo-app/rest"
+	"github.com/Sajid416/todo-app/rest/middlewares"
+	"github.com/Sajid416/todo-app/rest/todo"
+	"github.com/Sajid416/todo-app/rest/user"
+	"github.com/jmoiron/sqlx"
 )
 
 func Serve() {
-	cnf := config.GetConfig()
 
-	// Create middleware manager
+	cnf := config.GetConfig()
+	userDB, err := sqlx.Connect("postgres", cnf.UserDBUrl)
+	if err != nil {
+		log.Fatalf("Failed to connect to UserDB: %v", err)
+	}
+	todoDB,err:=sqlx.Connect("postgres",cnf.TodoDBUrl)
+	if err!=nil{
+		log.Fatalf("Failed to connect to todoDB: %v",err)
+	}
+
 	manager := middlewares.NewManager()
 	manager.Use(
 		middlewares.Preflight,
@@ -19,11 +30,8 @@ func Serve() {
 		middlewares.Logger,
 	)
 
-	// Create handlers
-	todoHandler := todo.NewHandler(manager)
-	userHandler := user.NewHandler()
-
-	// Create and start server with both handlers
-	server := handler.NewServer(todoHandler, userHandler, manager)
+	todoHandler := todo.NewHandler(todoDB)
+	userHandler := user.NewHandler(userDB)
+	server := rest.NewServer(todoHandler, userHandler, manager)
 	server.Start(cnf)
 }

@@ -23,3 +23,10 @@ func (m *Manager) WrapMux(mux *http.ServeMux) http.Handler {
 	}
 	return handler
 }
+func (m *Manager) WrapHandler(handler http.Handler, mws ...Middleware) http.Handler {
+	// Apply middlewares in reverse order so the first added runs last
+	for i := len(mws) - 1; i >= 0; i-- {
+		handler = mws[i](handler)
+	}
+	return handler
+}

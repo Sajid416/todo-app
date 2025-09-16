@@ -1,4 +1,4 @@
-package handler
+package rest
 
 import (
 	"log"
@@ -7,9 +7,9 @@ import (
 	"strconv"
 
 	"github.com/Sajid416/todo-app/config"
-	"github.com/Sajid416/todo-app/handler/todo"
-	"github.com/Sajid416/todo-app/handler/user"
-	"github.com/Sajid416/todo-app/middlewares"
+	"github.com/Sajid416/todo-app/rest/middlewares"
+	"github.com/Sajid416/todo-app/rest/todo"
+	"github.com/Sajid416/todo-app/rest/user"
 )
 
 type Server struct {
@@ -18,7 +18,6 @@ type Server struct {
 	manager     *middlewares.Manager
 }
 
-// NewServer accepts both handlers and middleware manager
 func NewServer(todoHandler *todo.Handler, userHandler *user.Handler, manager *middlewares.Manager) *Server {
 	return &Server{
 		todoHandler: todoHandler,
@@ -30,18 +29,16 @@ func NewServer(todoHandler *todo.Handler, userHandler *user.Handler, manager *mi
 func (s *Server) Start(cnf *config.Config) {
 	mux := http.NewServeMux()
 
-	// ✅ Register both Todo and User routes
-	s.todoHandler.RegisterRoutes(mux)
-	s.userHandler.RegisterRoutes(mux)
+	s.todoHandler.RegisterRoutes(mux, s.manager)
+	s.userHandler.RegisterRoutes(mux, s.manager)
 
-	// ✅ Wrap mux with middlewares
 	wrappedMux := s.manager.WrapMux(mux)
 
 	addr := ":" + strconv.Itoa(cnf.HttpPort)
-	log.Println("🚀 Server running on port", addr)
+	log.Println("Server running on port", addr)
 
 	if err := http.ListenAndServe(addr, wrappedMux); err != nil {
-		log.Println("❌ Error starting the server:", err)
+		log.Println("Error starting the server:", err)
 		os.Exit(1)
 	}
 }
