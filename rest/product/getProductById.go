@@ -1,4 +1,4 @@
-package todo
+package product
 
 import (
 	"database/sql"
@@ -7,19 +7,18 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Sajid416/todo-app/database"
 	"github.com/Sajid416/todo-app/model"
 )
 
-func GetTaskById(w http.ResponseWriter, r *http.Request) {
-	idr := strings.TrimPrefix(r.URL.Path, "/task/")
+func (h *Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
+	idr := strings.TrimPrefix(r.URL.Path, "/product/")
 	id, err := strconv.Atoi(idr)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	var user model.User
-	err = database.DB.Get(&user, `select * from tasks where id=$1`, id)
+	var product model.Product
+	err = h.TodoDB.Get(&product, `select * from products where id=$1`, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			http.Error(w, "Task not found", http.StatusNotFound)
@@ -29,6 +28,6 @@ func GetTaskById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	WriteJson(w, http.StatusOK, user)
+	WriteJson(w, http.StatusOK, product)
 
 }

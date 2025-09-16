@@ -1,4 +1,4 @@
-package todo
+package product
 
 import (
 	"github.com/jmoiron/sqlx"

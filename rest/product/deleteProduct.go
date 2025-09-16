@@ -1,22 +1,20 @@
-package todo
+package product
 
 import (
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/Sajid416/todo-app/database"
 )
 
-func DeleteTask(w http.ResponseWriter, r *http.Request) {
-	idr := strings.TrimPrefix(r.URL.Path, "/task/")
+func (h *Handler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	idr := strings.TrimPrefix(r.URL.Path, "/product/")
 	id, err := strconv.Atoi(idr)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	result, err := database.DB.Exec("DELETE FROM tasks WHERE id=$1", id)
+	result, err := h.TodoDB.Exec("DELETE FROM products WHERE id=$1", id)
 	if err != nil {
 		http.Error(w, "failed to delete task: "+err.Error(), http.StatusInternalServerError)
 		return
