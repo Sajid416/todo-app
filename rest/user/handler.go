@@ -1,13 +1,12 @@
 package user
 
-import (
-	"github.com/jmoiron/sqlx"
-)
-
 type Handler struct {
-	UserDB *sqlx.DB
+	//UserDB *sqlx.DB
 }
 
-func NewHandler(userDB *sqlx.DB) *Handler {
-	return &Handler{UserDB: userDB}
+// userDB *sqlx.DB
+func NewHandler() *Handler {
+	return &Handler{}
 }
+
+//return &Handler{UserDB: userDB}

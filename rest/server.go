@@ -13,28 +13,33 @@ import (
 )
 
 type Server struct {
+	cnf            *config.Config
 	productHandler *product.Handler
 	userHandler    *user.Handler
-	manager        *middlewares.Manager
 }
 
-func NewServer(productHandler *product.Handler, userHandler *user.Handler, manager *middlewares.Manager) *Server {
+func NewServer(cnf *config.Config, productHandler *product.Handler, userHandler *user.Handler) *Server {
 	return &Server{
+		cnf:            cnf,
 		productHandler: productHandler,
 		userHandler:    userHandler,
-		manager:        manager,
 	}
 }
 
-func (s *Server) Start(cnf *config.Config) {
+func (server *Server) Start() {
+	manager := middlewares.NewManager()
+	manager.Use(
+		middlewares.Preflight,
+		middlewares.Cors,
+		middlewares.Logger,
+	)
+
 	mux := http.NewServeMux()
+	wrappedMux := manager.WrapMux(mux)
+	server.productHandler.RegisterRoutes(mux, manager)
+	server.userHandler.RegisterRoutes(mux, manager)
 
-	s.productHandler.RegisterRoutes(mux, s.manager)
-	s.userHandler.RegisterRoutes(mux, s.manager)
-
-	wrappedMux := s.manager.WrapMux(mux)
-
-	addr := ":" + strconv.Itoa(cnf.HttpPort)
+	addr := ":" + strconv.Itoa(server.cnf.HttpPort)
 	log.Println("Server running on port", addr)
 
 	if err := http.ListenAndServe(addr, wrappedMux); err != nil {
