@@ -10,6 +10,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, manager *middlewares.Manage
 
 	mux.Handle("GET /product", manager.With(
 		http.HandlerFunc(h.GetAllProduct),
+		
 	))
 	mux.Handle("GET /product/filter", manager.With(
 		http.HandlerFunc(h.FilteredProduct),

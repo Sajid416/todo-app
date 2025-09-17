@@ -6,8 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Sajid416/todo-app/model"
-	checkcred "github.com/Sajid416/todo-app/rest/user/check_cred"
-	"github.com/Sajid416/todo-app/rest/util"
+	"github.com/Sajid416/todo-app/rest/middlewares"
 )
 
 type ReqLogin struct {
@@ -29,18 +28,18 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	query := `select * from user where email=$1`
 	err := h.UserDB.Get(&user, query, reqLogin.Email)
 	if err != nil {
-		util.SendData(w, "Invalid Email or Password", http.StatusUnauthorized)
+		middlewares.SendData(w, "Invalid Email or Password", http.StatusUnauthorized)
 		return
 	}
-	if !checkcred.Compare_Pass(reqLogin.Password, user.Password) {
-		util.SendData(w, "invalid password or email", http.StatusUnauthorized)
+	if !middlewares.Compare_Pass(reqLogin.Password, user.Password) {
+		middlewares.SendData(w, "invalid password or email", http.StatusUnauthorized)
 		return
 	}
 
-	token, err := util.GenerateToken(reqLogin.UserName, reqLogin.Email)
+	token, err := h.Middlewares.GenerateToken(reqLogin.UserName, reqLogin.Email)
     if err!=nil{
-		util.SendData(w,"Failed to create token",http.StatusInternalServerError)
+		middlewares.SendData(w,"Failed to create token",http.StatusInternalServerError)
 		return 
 	}
-	util.SendData(w, map[string]string{"token":token}, http.StatusOK)
+	middlewares.SendData(w, map[string]string{"token":token}, http.StatusOK)
 }

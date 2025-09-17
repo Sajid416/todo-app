@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Sajid416/todo-app/database"
-	"github.com/Sajid416/todo-app/rest/util"
+	"github.com/Sajid416/todo-app/model"
+	"github.com/Sajid416/todo-app/rest/middlewares"
 )
 
 type ReqCreateUser struct {
@@ -16,7 +16,7 @@ type ReqCreateUser struct {
 }
 
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var newUser database.User
+	var newUser model.UserInfo
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&newUser)
 	if err != nil {
@@ -24,6 +24,6 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request data", http.StatusBadRequest)
 		return
 	}
-	createdUser := newUser.Store()
-	util.SendData(w, createdUser, http.StatusCreated)
+
+	middlewares.SendData(w,newUser, http.StatusCreated)
 }

@@ -1,23 +1,27 @@
 package cmd
 
 import (
+	"log"
+
 	"github.com/Sajid416/todo-app/config"
 	"github.com/Sajid416/todo-app/rest"
+	"github.com/Sajid416/todo-app/rest/middlewares"
 	"github.com/Sajid416/todo-app/rest/product"
 	"github.com/Sajid416/todo-app/rest/user"
+	"github.com/jmoiron/sqlx"
 )
 
 func Serve() {
 
 	cnf := config.GetConfig()
-	// userDB, err := sqlx.Connect("postgres", cnf.UserDBUrl)
-	// if err != nil {
-	// 	log.Fatalf("Failed to connect to UserDB: %v", err)
-	// }
-	// productDB, err := sqlx.Connect("postgres", cnf.TodoDBUrl)
-	// if err != nil {
-	// 	log.Fatalf("Failed to connect to productDB: %v", err)
-	// }
+	userDB, err := sqlx.Connect("postgres", cnf.UserDBUrl)
+	if err != nil {
+		log.Fatalf("Failed to connect to UserDB: %v", err)
+	}
+	 productDB, err := sqlx.Connect("postgres", cnf.TodoDBUrl)
+	 if err != nil {
+	  log.Fatalf("Failed to connect to productDB: %v", err)
+	  }
 
 	// manager := middlewares.NewManager()
 	// manager.Use(
@@ -29,9 +33,14 @@ func Serve() {
 	// productHandler := product.NewHandler()
 	// userHandler := user.NewHandler()
 	// server := rest.NewServer(productHandler, userHandler, manager)
-	productHandler := product.NewHandler()
-	userHandler := user.NewHandler()
+	m := middlewares.NewMiddlewares(cnf)
+	productHandler := product.NewHandler(m,userDB)
+	userHandler := user.NewHandler(m,productDB)
 
-	server := rest.NewServer(cnf, productHandler, userHandler)
+	server := rest.NewServer(
+		cnf,
+		productHandler,
+		userHandler,
+	)
 	server.Start()
 }
