@@ -5,7 +5,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/Sajid416/todo-app/database"
 	"github.com/Sajid416/todo-app/model"
 )
 
@@ -14,7 +13,7 @@ func (h *Handler) SearchTaskByTitle(w http.ResponseWriter, r *http.Request) {
 
 	var product []model.Product
 
-	err := database.DB.Select(&product, `select * from products where title ILIKE $1`, "%"+title+"%")
+	err := h.ProductDB.Select(&product, `select * from products where title ILIKE $1`, "%"+title+"%")
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			http.Error(w, "Product Not Found", http.StatusNotFound)

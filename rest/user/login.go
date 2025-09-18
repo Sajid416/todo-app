@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/Sajid416/todo-app/model"
 	"github.com/Sajid416/todo-app/rest/middlewares"
@@ -36,10 +37,15 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.Middlewares.GenerateToken(reqLogin.UserName, reqLogin.Email)
-    if err!=nil{
-		middlewares.SendData(w,"Failed to create token",http.StatusInternalServerError)
+	accessToken, err := h.Middlewares.GenerateToken(reqLogin.UserName,reqLogin.Email,15*time.Minute, h.Middlewares.Cnf.JWTSecret)
+	if err!=nil{
+		middlewares.SendData(w,"Failed to create access token",http.StatusInternalServerError)
 		return 
 	}
-	middlewares.SendData(w, map[string]string{"token":token}, http.StatusOK)
+	refreshToken,err:=h.Middlewares.GenerateToken(reqLogin.UserName,reqLogin.Email,7*24*time.Hour,h.Middlewares.Cnf.JWTRefresh)
+    if err!=nil{
+		middlewares.SendData(w,"Failed to refresh token",http.StatusInternalServerError)
+		return 
+	}
+	middlewares.SendData(w, map[string]string{"access_token":accessToken, "refresh_token":refreshToken}, http.StatusOK)
 }

@@ -10,9 +10,9 @@ import (
 )
 
 type ReqCreateUser struct {
+	Id       int    `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
-	Password string `json:"password"`
 }
 
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -25,5 +25,20 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	middlewares.SendData(w,newUser, http.StatusCreated)
+	hashPass, err := middlewares.HashedPassword(newUser.Password)
+	if err != nil {
+		http.Error(w, "Error in Password hashing", http.StatusInternalServerError)
+		return
+	}
+	query := `insert into users (username,email,password)
+	        values ($1,$2,$3)
+			returning id,username,email`
+
+	var User ReqCreateUser
+	err= h.UserDB.Get(&User,query,newUser.Username,newUser.Email,hashPass)
+	if err!=nil{
+		http.Error(w,"Failed to insert User:"+err.Error(),http.StatusInternalServerError)
+	}
+
+	middlewares.SendData(w,User, http.StatusCreated)
 }

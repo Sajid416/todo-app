@@ -12,12 +12,14 @@ type Config struct {
 	UserDBUrl string
 	TodoDBUrl string
 	JWTSecret string
+	JWTRefresh string
 }
 
 func GetConfig() *Config {
 	httpPort := getEnvAsInt("HTTP_PORT", 8080)
 	jwtSecret := getEnv("JWT_SECRET", "myverysecretkey")
-
+	jwtRefresh:=getEnv("JWT_REFRESH","myveryrefreshkey")
+    
 	userDBUrl := buildDBUrl(
 		getEnv("DB_USER", "user"),
 		getEnv("DB_PASSWORD", "user_pass"),
@@ -26,7 +28,7 @@ func GetConfig() *Config {
 		getEnv("DB_NAME", "user_db"), // default user DB name
 	)
 
-	todoDBUrl := buildDBUrl(
+	ProductDBUrl := buildDBUrl(
 		getEnv("DB_USER", "user"),
 		getEnv("DB_PASSWORD", "user_pass"),
 		getEnv("DB_HOST", "localhost"),
@@ -37,8 +39,9 @@ func GetConfig() *Config {
 	return &Config{
 		HttpPort:  httpPort,
 		UserDBUrl: userDBUrl,
-		TodoDBUrl: todoDBUrl,
+		TodoDBUrl: ProductDBUrl,
 		JWTSecret: jwtSecret,
+		JWTRefresh: jwtRefresh,
 	}
 }
 
