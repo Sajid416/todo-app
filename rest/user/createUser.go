@@ -35,7 +35,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 			returning id,username,email`
 
 	var User ReqCreateUser
-	err= h.UserDB.Get(&User,query,newUser.Username,newUser.Email,hashPass)
+	err= h.DBUrl.Get(&User,query,newUser.Username,newUser.Email,hashPass)
 	if err!=nil{
 		http.Error(w,"Failed to insert User:"+err.Error(),http.StatusInternalServerError)
 	}

@@ -1,10 +1,10 @@
 package model
 
 type Product struct {
-	Id          int    `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	ImgUrl      string `json:"imgUrl"`
+	Id          int    `json:"id" db:"id" `
+	Title       string `json:"title" db:"title"`
+	Description string `json:"description" db:"description"`
+	ImgUrl      string `json:"img_url" db:"img_url"`
 }
 
 type UserInfo struct {

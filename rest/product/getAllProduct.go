@@ -9,8 +9,8 @@ import (
 func (h *Handler) GetAllProduct(w http.ResponseWriter, r *http.Request) {
 	var products []model.Product
 
-	query := `SELECT id, title, description, imgUrl FROM products ORDER BY id`
-	err := h.ProductDB.Select(&products, query)
+	query := `SELECT id, title, description, img_url FROM products ORDER BY id`
+	err := h.DBUrl.Select(&products, query)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

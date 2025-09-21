@@ -11,8 +11,7 @@ import (
 )
 
 type ReqLogin struct {
-	ID       int    `db:"id"`
-	UserName string `json:"userName"`
+	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -26,8 +25,8 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var user model.UserInfo
-	query := `select * from user where email=$1`
-	err := h.UserDB.Get(&user, query, reqLogin.Email)
+	query := `select * from users where email=$1`
+	err := h.DBUrl.Get(&user, query, reqLogin.Email)
 	if err != nil {
 		middlewares.SendData(w, "Invalid Email or Password", http.StatusUnauthorized)
 		return
@@ -37,12 +36,12 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := h.Middlewares.GenerateToken(reqLogin.UserName,reqLogin.Email,15*time.Minute, h.Middlewares.Cnf.JWTSecret)
+	accessToken, err := h.Middlewares.GenerateToken(reqLogin.Username,reqLogin.Email,15*time.Minute, h.Middlewares.Cnf.JWTSecret)
 	if err!=nil{
 		middlewares.SendData(w,"Failed to create access token",http.StatusInternalServerError)
 		return 
 	}
-	refreshToken,err:=h.Middlewares.GenerateToken(reqLogin.UserName,reqLogin.Email,7*24*time.Hour,h.Middlewares.Cnf.JWTRefresh)
+	refreshToken,err:=h.Middlewares.GenerateToken(reqLogin.Username,reqLogin.Email,7*24*time.Hour,h.Middlewares.Cnf.JWTRefresh)
     if err!=nil{
 		middlewares.SendData(w,"Failed to refresh token",http.StatusInternalServerError)
 		return 

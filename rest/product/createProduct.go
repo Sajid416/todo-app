@@ -16,8 +16,8 @@ func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	query := `INSERT INTO products (title,description,imgUrl) VALUES ($1, $2,$3) RETURNING id,title,description,imgUrl`
-	err := h.ProductDB.Get(&product, query, product.Title, product.Description, product.ImgUrl)
+	query := `INSERT INTO products (title,description,img_url) VALUES ($1, $2,$3) RETURNING id,title,description,img_url`
+	err := h.DBUrl.Get(&product, query, product.Title, product.Description, product.ImgUrl)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

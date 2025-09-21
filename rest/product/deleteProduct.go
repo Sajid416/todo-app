@@ -14,7 +14,7 @@ func (h *Handler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	result, err := h.ProductDB.Exec("DELETE FROM products WHERE id=$1", id)
+	result, err := h.DBUrl.Exec("DELETE FROM products WHERE id=$1", id)
 	if err != nil {
 		http.Error(w, "failed to delete task: "+err.Error(), http.StatusInternalServerError)
 		return

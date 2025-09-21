@@ -7,14 +7,14 @@ import (
 
 type Handler struct {
 	middlewares *middlewares.Middlewares
-	ProductDB      *sqlx.DB
+	DBUrl       *sqlx.DB
 }
 
 // TodoDB *sqlx.DB
-func NewHandler(middlewares *middlewares.Middlewares, ProductDB *sqlx.DB) *Handler {
+func NewHandler(middlewares *middlewares.Middlewares, DBUrl *sqlx.DB) *Handler {
 	return &Handler{
 		middlewares: middlewares,
-		ProductDB:      ProductDB,
+		DBUrl:       DBUrl,
 	}
 }
 
