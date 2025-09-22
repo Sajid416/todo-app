@@ -26,6 +26,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hashPass, err := middlewares.HashedPassword(newUser.Password)
+	fmt.Println(len(hashPass))
 	if err != nil {
 		http.Error(w, "Error in Password hashing", http.StatusInternalServerError)
 		return
@@ -35,7 +36,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 			returning id,username,email`
 
 	var User ReqCreateUser
-	err= h.DBUrl.Get(&User,query,newUser.Username,newUser.Email,hashPass)
+	err= h.middlewares.DB.Get(&User,query,newUser.Username,newUser.Email,hashPass)
 	if err!=nil{
 		http.Error(w,"Failed to insert User:"+err.Error(),http.StatusInternalServerError)
 	}

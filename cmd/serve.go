@@ -16,31 +16,28 @@ import (
 func Serve() {
 
 	cnf := config.GetConfig()
-	DBUrl, err := sqlx.Connect("postgres", cnf.DBUrl)
+	DB, err := sqlx.Connect("postgres", cnf.DBUrl)
 	if err != nil {
 		log.Fatalf("Failed to connect to UserDB: %v", err)
 	}
-    rdb:=otp.NewClient("localhost:6379")
+	rdb := otp.NewClient("localhost:6379")
 	// manager := middlewares.NewManager()
 	// manager.Use(
 	// 	middlewares.Preflight,
 	// 	middlewares.Cors,
 	// 	middlewares.Logger,
 	// )
-
-	// productHandler := product.NewHandler()
-	// userHandler := user.NewHandler()
-	// server := rest.NewServer(productHandler, userHandler, manager)
-	m := middlewares.NewMiddlewares(cnf)
-	productHandler := product.NewHandler(m, DBUrl)
-	userHandler := user.NewHandler(m, DBUrl)
-    manager:=otp.NewManager(rdb)
+	m := middlewares.NewMiddlewares(cnf,DB)
+	productHandler := product.NewHandler(m)
+	userHandler := user.NewHandler(m)
+	manager := otp.NewManager(rdb)
+	otpHandler := otp.NewHandler(manager)
 
 	server := rest.NewServer(
 		cnf,
 		productHandler,
 		userHandler,
-		manager,
+		otpHandler,
 	)
 	server.Start()
 }

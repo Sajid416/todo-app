@@ -10,6 +10,10 @@ type Handler struct{
 	Manager *Manager
 }
 
+func NewHandler(m *Manager) *Handler{
+	return &Handler{Manager:m}
+}
+
 func SendEmail(email,otp string) error{
 	log.Printf("Sending OTP to %s:%s\n",email,otp)
 	return nil

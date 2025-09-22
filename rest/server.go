@@ -17,7 +17,7 @@ type Server struct {
 	cnf            *config.Config
 	productHandler *product.Handler
 	userHandler    *user.Handler
-	otpHandler *otp.Handler
+	otpHandler     *otp.Handler
 }
 
 func NewServer(cnf *config.Config, productHandler *product.Handler, userHandler *user.Handler, otpHandler *otp.Handler) *Server {

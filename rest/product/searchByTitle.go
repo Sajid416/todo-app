@@ -13,7 +13,7 @@ func (h *Handler) SearchTaskByTitle(w http.ResponseWriter, r *http.Request) {
 
 	var product []model.Product
 
-	err := h.DBUrl.Select(&product, `select * from products where title ILIKE $1`, "%"+title+"%")
+	err := h.middlewares.DB.Select(&product, `select * from products where title ILIKE $1`, "%"+title+"%")
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			http.Error(w, "Product Not Found", http.StatusNotFound)

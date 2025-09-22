@@ -38,7 +38,7 @@ func (h *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
           WHERE id=$4 
           RETURNING id, title, description, img_url`
 
-	err = h.DBUrl.Get(&product, query, product.Title, product.Description, product.ImgUrl, id)
+	err = h.middlewares.DB.Get(&product, query, product.Title, product.Description, product.ImgUrl, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			http.Error(w, "Product not found", http.StatusNotFound)

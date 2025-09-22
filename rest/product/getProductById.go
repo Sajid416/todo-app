@@ -18,7 +18,7 @@ func (h *Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var product model.Product
-	err = h.DBUrl.Get(&product, `select * from products where id=$1`, id)
+	err = h.middlewares.DB.Get(&product, `select * from products where id=$1`, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			http.Error(w, "Task not found", http.StatusNotFound)

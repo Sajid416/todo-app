@@ -10,7 +10,7 @@ func (h *Handler) FilteredProduct(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Query().Get("title")
 	query := `select * from products where title=$1`
 	var products []model.Product
-	err := h.DBUrl.Select(&products, query, title)
+	err := h.middlewares.DB.Select(&products, query, title)
 	if err != nil {
 		http.Error(w, "Database error: "+err.Error(), http.StatusInternalServerError)
 		return

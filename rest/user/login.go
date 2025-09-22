@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/Sajid416/todo-app/model"
@@ -26,25 +27,27 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	var user model.UserInfo
 	query := `select * from users where email=$1`
-	err := h.DBUrl.Get(&user, query, reqLogin.Email)
+	err := h.middlewares.DB.Get(&user, query, reqLogin.Email)
 	if err != nil {
 		middlewares.SendData(w, "Invalid Email or Password", http.StatusUnauthorized)
 		return
 	}
+	fmt.Println(len(user.Password))
+	reqLogin.Password = strings.TrimSpace(reqLogin.Password)
 	if !middlewares.Compare_Pass(reqLogin.Password, user.Password) {
 		middlewares.SendData(w, "invalid password or email", http.StatusUnauthorized)
 		return
 	}
 
-	accessToken, err := h.Middlewares.GenerateToken(reqLogin.Username,reqLogin.Email,15*time.Minute, h.Middlewares.Cnf.JWTSecret)
-	if err!=nil{
-		middlewares.SendData(w,"Failed to create access token",http.StatusInternalServerError)
-		return 
+	accessToken, err := h.middlewares.GenerateToken(reqLogin.Username, reqLogin.Email, 15*time.Minute, h.middlewares.Cnf.JWTSecret)
+	if err != nil {
+		middlewares.SendData(w, "Failed to create access token", http.StatusInternalServerError)
+		return
 	}
-	refreshToken,err:=h.Middlewares.GenerateToken(reqLogin.Username,reqLogin.Email,7*24*time.Hour,h.Middlewares.Cnf.JWTRefresh)
-    if err!=nil{
-		middlewares.SendData(w,"Failed to refresh token",http.StatusInternalServerError)
-		return 
+	refreshToken, err := h.middlewares.GenerateToken(reqLogin.Username, reqLogin.Email, 7*24*time.Hour, h.middlewares.Cnf.JWTRefresh)
+	if err != nil {
+		middlewares.SendData(w, "Failed to refresh token", http.StatusInternalServerError)
+		return
 	}
-	middlewares.SendData(w, map[string]string{"access_token":accessToken, "refresh_token":refreshToken}, http.StatusOK)
+	middlewares.SendData(w, map[string]string{"access_token": accessToken, "refresh_token": refreshToken}, http.StatusOK)
 }
